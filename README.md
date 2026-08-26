@@ -182,6 +182,7 @@ No modules.
 | [aws_eip.red_instance_eip](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip) | resource |
 | [aws_iam_instance_profile.red_instance_profile](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_instance_profile) | resource |
 | [aws_iam_role.red_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy.route53_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy.s3_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy_attachment.red_ssm_policy_attachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_instance.red-instance](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance) | resource |
@@ -211,12 +212,14 @@ No modules.
 | <a name="input_dns_name"></a> [dns\_name](#input\_dns\_name) | FQDN for the public DNS record. | `string` | `""` | no |
 | <a name="input_egress_rules"></a> [egress\_rules](#input\_egress\_rules) | List of egress rules for the instance security group. Defaults to unrestricted outbound, which SSM Session Manager and OS package updates require. Narrow this if your environment provides SSM VPC endpoints. | <pre>list(object({<br/>    description = string<br/>    from_port   = number<br/>    to_port     = number<br/>    protocol    = string<br/>    cidr_blocks = list(string)<br/>  }))</pre> | <pre>[<br/>  {<br/>    "cidr_blocks": [<br/>      "0.0.0.0/0"<br/>    ],<br/>    "description": "Allow all outbound traffic",<br/>    "from_port": 0,<br/>    "protocol": "-1",<br/>    "to_port": 0<br/>  }<br/>]</pre> | no |
 | <a name="input_enable_public_dns"></a> [enable\_public\_dns](#input\_enable\_public\_dns) | Create a public Route53 A record pointing at the instance's EIP. | `bool` | `false` | no |
+| <a name="input_enable_route53_policy"></a> [enable\_route53\_policy](#input\_enable\_route53\_policy) | Attach a Route53 policy (scoped to route53\_zone\_id) to the instance role, for DNS-01 ACME challenges such as certbot cert issuance/renewal. | `bool` | `false` | no |
 | <a name="input_enable_s3_bucket_policy"></a> [enable\_s3\_bucket\_policy](#input\_enable\_s3\_bucket\_policy) | Attach an S3 access policy (scoped to s3\_bucket\_name) to the instance role. | `bool` | `false` | no |
 | <a name="input_ingress_rules"></a> [ingress\_rules](#input\_ingress\_rules) | List of ingress rules for the instance security group. Access is via SSM Session Manager by default; only open inbound ports you actually serve (e.g. 80/443). | <pre>list(object({<br/>    description = string<br/>    from_port   = number<br/>    to_port     = number<br/>    protocol    = string<br/>    cidr_blocks = list(string)<br/>  }))</pre> | n/a | yes |
 | <a name="input_instance_name"></a> [instance\_name](#input\_instance\_name) | The name of the instance. | `string` | n/a | yes |
 | <a name="input_instance_tags"></a> [instance\_tags](#input\_instance\_tags) | Tags to apply only to the EC2 instance resource. | `map(string)` | `{}` | no |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | The instance type to use for the instance. | `string` | `"t4g.small"` | no |
 | <a name="input_project_name"></a> [project\_name](#input\_project\_name) | Project name used for naming and the Project tag. | `string` | n/a | yes |
+| <a name="input_route53_zone_id"></a> [route53\_zone\_id](#input\_route53\_zone\_id) | Route53 hosted zone ID the instance may modify for DNS-01 challenges. Required when enable\_route53\_policy is true. | `string` | `""` | no |
 | <a name="input_s3_bucket_name"></a> [s3\_bucket\_name](#input\_s3\_bucket\_name) | Name of the S3 bucket the instance role may access. | `string` | `""` | no |
 | <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | ID of an existing subnet to use when create\_vpc is false. | `string` | `""` | no |
 | <a name="input_user_data_script_path"></a> [user\_data\_script\_path](#input\_user\_data\_script\_path) | Path to a user data script to run on first boot. | `string` | `""` | no |

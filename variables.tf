@@ -164,3 +164,15 @@ variable "dns_name" {
   type        = string
   default     = ""
 }
+
+variable "enable_route53_policy" {
+  description = "Attach a Route53 policy (scoped to route53_zone_id) to the instance role, for DNS-01 ACME challenges such as certbot cert issuance/renewal."
+  type        = bool
+  default     = false
+}
+
+variable "route53_zone_id" {
+  description = "Route53 hosted zone ID the instance may modify for DNS-01 challenges. Required when enable_route53_policy is true."
+  type        = string
+  default     = ""
+}

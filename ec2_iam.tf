@@ -65,3 +65,39 @@ resource "aws_iam_role_policy" "s3_bucket_policy" {
 }
 EOF
 }
+
+# Role policy for Route53 DNS-01 ACME challenges (e.g. certbot cert issuance
+# and renewal). Scoped to a single hosted zone plus the account-level calls
+# the certbot route53 plugin requires.
+resource "aws_iam_role_policy" "route53_policy" {
+  name = "${lower(var.instance_name)}-route53-policy"
+  role = aws_iam_role.red_role.name
+
+  count = var.enable_route53_policy ? 1 : 0
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "route53:GetChange",
+      "Resource": "arn:aws:route53:::change/*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "route53:ChangeResourceRecordSets",
+        "route53:ListResourceRecordSets"
+      ],
+      "Resource": "arn:aws:route53:::hostedzone/${var.route53_zone_id}"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "route53:ListHostedZones",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
