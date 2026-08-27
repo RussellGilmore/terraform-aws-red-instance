@@ -222,6 +222,7 @@ No modules.
 | <a name="input_route53_zone_id"></a> [route53\_zone\_id](#input\_route53\_zone\_id) | Route53 hosted zone ID the instance may modify for DNS-01 challenges. Required when enable\_route53\_policy is true. | `string` | `""` | no |
 | <a name="input_s3_bucket_name"></a> [s3\_bucket\_name](#input\_s3\_bucket\_name) | Name of the S3 bucket the instance role may access. | `string` | `""` | no |
 | <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | ID of an existing subnet to use when create\_vpc is false. | `string` | `""` | no |
+| <a name="input_user_data"></a> [user\_data](#input\_user\_data) | Rendered user-data content passed directly to the instance. Takes precedence over user\_data\_script\_path when set. Use this for templated user-data (e.g. templatefile()) where the content isn't a static file on disk. | `string` | `""` | no |
 | <a name="input_user_data_script_path"></a> [user\_data\_script\_path](#input\_user\_data\_script\_path) | Path to a user data script to run on first boot. | `string` | `""` | no |
 | <a name="input_volume_size"></a> [volume\_size](#input\_volume\_size) | The size of the root volume in GB. | `number` | `30` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | ID of an existing VPC to use when create\_vpc is false. | `string` | `""` | no |

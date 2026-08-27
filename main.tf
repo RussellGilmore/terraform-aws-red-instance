@@ -65,8 +65,9 @@ resource "aws_instance" "red-instance" {
   vpc_security_group_ids  = [aws_security_group.red_sg.id]
   disable_api_termination = var.disable_api_termination
   disable_api_stop        = var.disable_api_stop
-  user_data               = var.user_data_script_path != "" ? file(var.user_data_script_path) : null
-  iam_instance_profile    = aws_iam_instance_profile.red_instance_profile.name
+  # user_data (string) wins over user_data_script_path (file) when both are set.
+  user_data            = var.user_data != "" ? var.user_data : (var.user_data_script_path != "" ? file(var.user_data_script_path) : null)
+  iam_instance_profile = aws_iam_instance_profile.red_instance_profile.name
 
   metadata_options {
     http_endpoint = "enabled"

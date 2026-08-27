@@ -131,6 +131,12 @@ variable "availability_zone" {
   default     = ""
 }
 
+variable "user_data" {
+  description = "Rendered user-data content passed directly to the instance. Takes precedence over user_data_script_path when set. Use this for templated user-data (e.g. templatefile()) where the content isn't a static file on disk."
+  type        = string
+  default     = ""
+}
+
 ####################################################################################################
 # S3 Access
 variable "enable_s3_bucket_policy" {
