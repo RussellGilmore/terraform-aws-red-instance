@@ -58,6 +58,10 @@ func TestRedInstanceCreatesNetwork(t *testing.T) {
 		if publicIP == "Public IP not allocated" || publicIP == "" {
 			t.Fatalf("Expected a public IP, got: %q", publicIP)
 		}
+		privateIP := terraform.OutputContext(t, ctx, opts, "private_ip")
+		if !strings.HasPrefix(privateIP, "10.0.1.") {
+			t.Fatalf("Expected an AWS-assigned private IP in 10.0.1.0/24, got: %q", privateIP)
+		}
 	})
 }
 
@@ -106,6 +110,11 @@ func TestRedInstanceUsesExistingNetwork(t *testing.T) {
 		moduleVPC := terraform.OutputContext(t, ctx, opts, "vpc_id")
 		if moduleVPC != suppliedVPC {
 			t.Fatalf("Module vpc_id (%q) should equal supplied VPC (%q)", moduleVPC, suppliedVPC)
+		}
+		const pinnedIP = "10.20.1.10"
+		privateIP := terraform.OutputContext(t, ctx, opts, "private_ip")
+		if privateIP != pinnedIP {
+			t.Fatalf("Expected pinned private IP %q, got: %q", pinnedIP, privateIP)
 		}
 	})
 }
