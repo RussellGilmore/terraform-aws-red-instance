@@ -19,30 +19,30 @@ brew install aquasecurity/trivy/trivy
 
 ## Security posture
 
--   **No SSH key pair** — access is via SSM Session Manager. No private key is
-    generated, written to disk, or stored in Terraform state.
--   IMDSv2 required; root EBS volume encrypted
--   Instance role limited to `AmazonSSMManagedInstanceCore` plus an optional
-    bucket-scoped S3 policy
--   **Ingress and egress are both caller-controlled.** Ingress opens only the
-    ports you pass (examples open 80/443, never 22). Egress defaults to open
-    because SSM and OS updates need it, and can be narrowed via `egress_rules`.
--   Scanned with Trivy and gitleaks; integration-tested with Terratest across
-    both networking paths (module-created and caller-supplied)
+- **No SSH key pair** — access is via SSM Session Manager. No private key is
+  generated, written to disk, or stored in Terraform state.
+- IMDSv2 required; root EBS volume encrypted
+- Instance role limited to `AmazonSSMManagedInstanceCore` plus an optional
+  bucket-scoped S3 policy
+- **Ingress and egress are both caller-controlled.** Ingress opens only the
+  ports you pass (examples open 80/443, never 22). Egress defaults to open
+  because SSM and OS updates need it, and can be narrowed via `egress_rules`.
+- Scanned with Trivy and gitleaks; integration-tested with Terratest across both
+  networking paths (module-created and caller-supplied)
 
 ## Features
 
--   Provisions an EC2 instance accessed exclusively via AWS SSM Session Manager
-    — no SSH key pair is created or attached
--   IMDSv2 required and root EBS volume encrypted by default
--   Dynamically creates ingress security group rules from a caller-supplied list
--   Configurable egress rules, defaulting to the outbound access SSM and OS
-    updates require
--   Optionally provisions a minimal public VPC, or drops into an existing
-    network you supply
--   Optionally creates a public Route 53 DNS record for the instance
--   Optionally passes a user data script into instance creation
--   Optionally attaches a bucket-scoped S3 access policy to the instance role
+- Provisions an EC2 instance accessed exclusively via AWS SSM Session Manager —
+  no SSH key pair is created or attached
+- IMDSv2 required and root EBS volume encrypted by default
+- Dynamically creates ingress security group rules from a caller-supplied list
+- Configurable egress rules, defaulting to the outbound access SSM and OS
+  updates require
+- Optionally provisions a minimal public VPC, or drops into an existing network
+  you supply
+- Optionally creates a public Route 53 DNS record for the instance
+- Optionally passes a user data script into instance creation
+- Optionally attaches a bucket-scoped S3 access policy to the instance role
 
 ## Usage
 
@@ -218,6 +218,7 @@ No modules.
 | <a name="input_instance_name"></a> [instance\_name](#input\_instance\_name) | The name of the instance. | `string` | n/a | yes |
 | <a name="input_instance_tags"></a> [instance\_tags](#input\_instance\_tags) | Tags to apply only to the EC2 instance resource. | `map(string)` | `{}` | no |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | The instance type to use for the instance. | `string` | `"t4g.small"` | no |
+| <a name="input_private_ip"></a> [private\_ip](#input\_private\_ip) | Fixed primary private IPv4 address for the instance. Must be inside the subnet's CIDR (10.0.1.0/24 when create\_vpc is true) and not one of the five AWS-reserved addresses. Leave null to let AWS assign one. Changing it replaces the instance. | `string` | `null` | no |
 | <a name="input_project_name"></a> [project\_name](#input\_project\_name) | Project name used for naming and the Project tag. | `string` | n/a | yes |
 | <a name="input_route53_zone_id"></a> [route53\_zone\_id](#input\_route53\_zone\_id) | Route53 hosted zone ID the instance may modify for DNS-01 challenges. Required when enable\_route53\_policy is true. | `string` | `""` | no |
 | <a name="input_s3_bucket_name"></a> [s3\_bucket\_name](#input\_s3\_bucket\_name) | Name of the S3 bucket the instance role may access. | `string` | `""` | no |
@@ -232,6 +233,7 @@ No modules.
 | Name | Description |
 | ---- | ----------- |
 | <a name="output_instance_id"></a> [instance\_id](#output\_instance\_id) | The ID of the EC2 instance. |
+| <a name="output_private_ip"></a> [private\_ip](#output\_private\_ip) | The primary private IPv4 address of the instance — the pinned private\_ip when set, otherwise the one AWS assigned. |
 | <a name="output_public_dns"></a> [public\_dns](#output\_public\_dns) | The public DNS name of the instance. |
 | <a name="output_public_ip"></a> [public\_ip](#output\_public\_ip) | The public IP address of the instance (EIP when allocated). |
 | <a name="output_security_group_id"></a> [security\_group\_id](#output\_security\_group\_id) | The ID of the instance security group. |

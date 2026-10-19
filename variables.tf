@@ -131,6 +131,17 @@ variable "availability_zone" {
   default     = ""
 }
 
+variable "private_ip" {
+  description = "Fixed primary private IPv4 address for the instance. Must be inside the subnet's CIDR (10.0.1.0/24 when create_vpc is true) and not one of the five AWS-reserved addresses. Leave null to let AWS assign one. Changing it replaces the instance."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.private_ip == null || can(cidrnetmask("${var.private_ip}/32"))
+    error_message = "private_ip must be a valid IPv4 address."
+  }
+}
+
 variable "user_data" {
   description = "Rendered user-data content passed directly to the instance. Takes precedence over user_data_script_path when set. Use this for templated user-data (e.g. templatefile()) where the content isn't a static file on disk."
   type        = string

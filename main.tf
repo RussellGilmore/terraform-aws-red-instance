@@ -62,6 +62,7 @@ resource "aws_instance" "red-instance" {
   ami                     = data.aws_ami.red_ami.id
   instance_type           = var.instance_type
   subnet_id               = var.create_vpc ? aws_subnet.public[0].id : var.subnet_id
+  private_ip              = var.private_ip
   vpc_security_group_ids  = [aws_security_group.red_sg.id]
   disable_api_termination = var.disable_api_termination
   disable_api_stop        = var.disable_api_stop

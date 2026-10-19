@@ -18,6 +18,11 @@ output "public_ip" {
   value       = var.allocate_eip ? aws_eip.red_instance_eip[0].public_ip : "Public IP not allocated"
 }
 
+output "private_ip" {
+  description = "The primary private IPv4 address of the instance — the pinned private_ip when set, otherwise the one AWS assigned."
+  value       = aws_instance.red-instance.private_ip
+}
+
 output "public_dns" {
   description = "The public DNS name of the instance."
   value       = var.enable_public_dns ? aws_route53_record.red_instance_dns[0].fqdn : "Public DNS not allocated"
