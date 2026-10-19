@@ -64,6 +64,7 @@ module "red_instance" {
   create_vpc = false
   vpc_id     = aws_vpc.this.id
   subnet_id  = aws_subnet.public.id
+  private_ip = "10.20.1.10"
 
   ingress_rules = [
     {
@@ -81,11 +82,18 @@ module "red_instance" {
 }
 
 output "instance_id" {
-  value = module.red_instance.instance_id
+  description = "The ID of the red instance."
+  value       = module.red_instance.instance_id
 }
 
 output "public_ip" {
-  value = module.red_instance.public_ip
+  description = "The public IP address of the red instance."
+  value       = module.red_instance.public_ip
+}
+
+output "private_ip" {
+  description = "Private IP reported by the module — should equal the pinned address."
+  value       = module.red_instance.private_ip
 }
 
 output "vpc_id" {

@@ -47,9 +47,16 @@ module "red_instance" {
 }
 
 output "instance_id" {
-  value = module.red_instance.instance_id
+  description = "The ID of the red instance."
+  value       = module.red_instance.instance_id
 }
 
 output "public_ip" {
-  value = module.red_instance.public_ip
+  description = "The public IP address of the red instance."
+  value       = module.red_instance.public_ip
+}
+
+output "private_ip" {
+  description = "The primary private IPv4 address of the red instance."
+  value       = module.red_instance.private_ip
 }
