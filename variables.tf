@@ -11,14 +11,22 @@ variable "instance_name" {
 }
 
 variable "ingress_rules" {
-  description = "List of ingress rules for the instance security group. Access is via SSM Session Manager by default; only open inbound ports you actually serve (e.g. 80/443)."
+  description = "List of ingress rules for the instance security group. Each rule admits traffic from cidr_blocks, security_groups (IDs of source security groups, e.g. a load balancer's), or both. Access is via SSM Session Manager by default; only open inbound ports you actually serve (e.g. 80/443)."
   type = list(object({
-    description = string
-    from_port   = number
-    to_port     = number
-    protocol    = string
-    cidr_blocks = list(string)
+    description     = string
+    from_port       = number
+    to_port         = number
+    protocol        = string
+    cidr_blocks     = optional(list(string), [])
+    security_groups = optional(list(string), [])
   }))
+
+  validation {
+    condition = alltrue([
+      for r in var.ingress_rules : length(r.cidr_blocks) + length(r.security_groups) > 0
+    ])
+    error_message = "Each ingress rule must set at least one source: cidr_blocks and/or security_groups."
+  }
 }
 
 ####################################################################################################
