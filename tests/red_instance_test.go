@@ -6,6 +6,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/ec2"
+	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
@@ -111,10 +115,44 @@ func TestRedInstanceUsesExistingNetwork(t *testing.T) {
 		if moduleVPC != suppliedVPC {
 			t.Fatalf("Module vpc_id (%q) should equal supplied VPC (%q)", moduleVPC, suppliedVPC)
 		}
+
 		const pinnedIP = "10.20.1.10"
 		privateIP := terraform.OutputContext(t, ctx, opts, "private_ip")
 		if privateIP != pinnedIP {
 			t.Fatalf("Expected pinned private IP %q, got: %q", pinnedIP, privateIP)
+		}
+
+		// The 8080 rule must reference the source security group, not a CIDR.
+		instanceSG := terraform.OutputContext(t, ctx, opts, "security_group_id")
+		sourceSG := terraform.OutputContext(t, ctx, opts, "source_security_group_id")
+
+		cfg, err := config.LoadDefaultConfig(ctx, config.WithRegion(awsRegion))
+		if err != nil {
+			t.Fatalf("Failed to load AWS config: %v", err)
+		}
+		client := ec2.NewFromConfig(cfg)
+
+		out, err := client.DescribeSecurityGroupRules(ctx, &ec2.DescribeSecurityGroupRulesInput{
+			Filters: []types.Filter{
+				{Name: aws.String("group-id"), Values: []string{instanceSG}},
+			},
+		})
+		if err != nil {
+			t.Fatalf("Failed to describe rules for %s: %v", instanceSG, err)
+		}
+
+		found := false
+		for _, r := range out.SecurityGroupRules {
+			if aws.ToBool(r.IsEgress) || r.ReferencedGroupInfo == nil {
+				continue
+			}
+			if aws.ToString(r.ReferencedGroupInfo.GroupId) == sourceSG && aws.ToInt32(r.FromPort) == 8080 {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Fatalf("Expected an ingress rule on %s for port 8080 from source SG %s", instanceSG, sourceSG)
 		}
 	})
 }

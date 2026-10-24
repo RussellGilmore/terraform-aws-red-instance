@@ -55,6 +55,15 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
+# Stands in for a load balancer's security group: the instance admits
+# traffic from members of this group rather than from a CIDR.
+resource "aws_security_group" "source" {
+  name        = "${var.project_name}-source-sg"
+  description = "Example source security group (stands in for a load balancer)"
+  vpc_id      = aws_vpc.this.id
+  tags        = { Name = "${var.project_name}-source-sg" }
+}
+
 module "red_instance" {
   source = "../../"
 
@@ -73,7 +82,14 @@ module "red_instance" {
       to_port     = 443
       protocol    = "tcp"
       cidr_blocks = ["0.0.0.0/0"]
-    }
+    },
+    {
+      description     = "App port from the source security group only"
+      from_port       = 8080
+      to_port         = 8080
+      protocol        = "tcp"
+      security_groups = [aws_security_group.source.id]
+    },
   ]
 
   additional_tags = {
@@ -104,4 +120,14 @@ output "vpc_id" {
 output "supplied_vpc_id" {
   description = "The externally-created VPC ID, for cross-checking against the module output."
   value       = aws_vpc.this.id
+}
+
+output "security_group_id" {
+  description = "The instance's security group, whose rules the test inspects."
+  value       = module.red_instance.security_group_id
+}
+
+output "source_security_group_id" {
+  description = "The source security group the 8080 rule should reference."
+  value       = aws_security_group.source.id
 }
